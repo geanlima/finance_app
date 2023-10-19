@@ -1,5 +1,6 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use, avoid_print
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously, prefer_const_constructors, sized_box_for_whitespace
 
+import 'package:finance_app/presentation/pages/expense_page.dart';
 import 'package:finance_app/widgets/signup_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_app/data/database/database_helper.dart';
@@ -36,15 +37,13 @@ class _LoginformState extends State<Loginform> {
       User? user =
           await DatabaseHelper.instance.fetchUser(_username, _password);
 
-      print('_username');
-      print(_username);
-
-      print('_password');
-      print(_password);
-
       if (user != null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Login bem-sucedido!")));
+
+        // Navegue para ExpensePage
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => ExpensePage()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Usuário ou senha inválidos")));
@@ -52,11 +51,44 @@ class _LoginformState extends State<Loginform> {
     }
   }
 
+  void _showUsersPopup() async {
+    List<User> users = await DatabaseHelper.instance
+        .fetchAllUsers(); // Presumo que você tem um método fetchAllUsers
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Lista de Usuários'),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(users[index].username),
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Fechar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
-      // Adicionando o widget Form aqui
-      key: _formKey, // Associando a chave ao widget Form
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -115,10 +147,10 @@ class _LoginformState extends State<Loginform> {
             onPressed: _submit,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: Colors.blue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              primary: Colors.blue,
             ),
             child: Text("Login"),
           ),
@@ -126,12 +158,17 @@ class _LoginformState extends State<Loginform> {
           Center(
             child: TextButton(
               onPressed: () {
-                // Aqui você navegará para a tela de cadastro.
-                // Ajuste "YourSignupPage" para o nome da sua classe de tela de cadastro.
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => SignupPopup()));
               },
               child: Text('Não tem uma conta? Cadastre-se'),
+            ),
+          ),
+          SizedBox(height: 10),
+          Center(
+            child: TextButton(
+              onPressed: _showUsersPopup,
+              child: Text('Ver todos os usuários'),
             ),
           ),
         ],

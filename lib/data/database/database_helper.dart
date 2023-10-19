@@ -1,5 +1,7 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, avoid_print
 
+import 'package:finance_app/models/group.dart';
+import 'package:finance_app/models/expense.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:finance_app/models/user.dart';
@@ -20,20 +22,50 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2, // Aumentando a versão para 2
+      onCreate: _createDB,
+      onUpgrade: _onUpgrade, // Adicionando o onUpgrade
+    );
   }
 
   Future _createDB(Database db, int version) async {
-    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    const textType = 'TEXT NOT NULL';
+    await db.execute('''
+      CREATE TABLE users ( 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        username TEXT NOT NULL,
+        password TEXT NOT NULL
+        )
+      ''');
 
     await db.execute('''
-CREATE TABLE users ( 
-  id $idType, 
-  username $textType,
-  password $textType
-  )
-''');
+      CREATE TABLE expense ( 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        title TEXT NOT NULL,
+        value REAL NOT NULL,
+        groupId INTEGER
+        )
+      ''');
+
+    await db.execute('''
+      CREATE TABLE groups ( 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        name TEXT NOT NULL
+        )
+      ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE groups ( 
+          id INTEGER PRIMARY KEY AUTOINCREMENT, 
+          name TEXT NOT NULL
+          )
+        ''');
+    }
+    // Implemente futuras atualizações da versão aqui
   }
 
   Future<User?> fetchUser(String username, String password) async {
@@ -51,5 +83,32 @@ CREATE TABLE users (
     }
   }
 
-  // Você pode adicionar mais funções aqui, como para criar um novo usuário
+  Future<List<User>> fetchAllUsers() async {
+    final db = await instance.database;
+    final result = await db.query('users');
+
+    return result.map((map) => User.fromMap(map)).toList();
+  }
+
+  Future<int> addUser(User user) async {
+    final db = await instance.database;
+    return await db.insert('users', user.toMap());
+  }
+
+  Future<int> addExpense(Expense expense) async {
+    final db = await instance.database;
+    return await db.insert('expense', expense.toMap());
+  }
+
+  Future<int> addGroup(Group group) async {
+    final db = await instance.database;
+    return await db.insert('groups', group.toMap());
+  }
+
+  Future<List<Group>> loadGroups() async {
+    final db = await instance.database;
+    final result = await db.query('groups');
+
+    return result.map((map) => Group.fromMap(map)).toList();
+  }
 }
