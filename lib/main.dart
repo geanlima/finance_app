@@ -1,5 +1,7 @@
 // ignore_for_file: use_key_in_widget_constructors, unused_import
 
+import 'package:finance_app/presentation/pages/expense_page.dart';
+import 'package:finance_app/presentation/pages/group_page.dart';
 import 'package:finance_app/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'themes/app_theme.dart';
@@ -19,6 +21,10 @@ class MyApp extends StatelessWidget {
       home: SplashScreen(), // Definindo a SplashScreen como a primeira tela
       routes: {
         '/login': (context) => LoginPage(), // Rota para a tela de login
+        'LoginPage': (context) => LoginPage(),
+        'GroupPage': (context) => GroupPage(), // Rota para a tela de Grupos
+        'ExpensePage': (context) =>
+            ExpensePage(), // Rota para a tela de Lançamentos
         // Adicione outras rotas conforme necessário
       },
     );

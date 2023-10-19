@@ -1,6 +1,6 @@
 class Group {
   final int? id;
-  final String name;
+  late String name;
 
   Group({this.id, required this.name});
 

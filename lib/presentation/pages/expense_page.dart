@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously
 
+import 'package:finance_app/presentation/pages/group_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_app/models/expense.dart';
@@ -57,7 +58,25 @@ class _ExpensePageState extends State<ExpensePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastrar Despesa'),
+        title: Text('Expense'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.group_add), // Ícone de adicionar grupo
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GroupPage(),
+                ),
+              );
+            },
+          ),
+        ],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Isso volta para a tela anterior
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -127,7 +146,7 @@ class _ExpensePageState extends State<ExpensePage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submit,
-                child: Text('Adicionar Despesa'),
+                child: Text('Expense'),
               )
             ],
           ),

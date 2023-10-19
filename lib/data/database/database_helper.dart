@@ -31,42 +31,44 @@ class DatabaseHelper {
   }
 
   Future _createDB(Database db, int version) async {
-    await db.execute('''
+    // Verificar se a tabela 'users' já existe e criá-la se não existir
+    await _createTableIfNotExists(db, 'users', '''
       CREATE TABLE users ( 
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         username TEXT NOT NULL,
         password TEXT NOT NULL
-        )
-      ''');
+      )
+    ''');
 
-    await db.execute('''
+    // Verificar se a tabela 'expense' já existe e criá-la se não existir
+    await _createTableIfNotExists(db, 'expense', '''
       CREATE TABLE expense ( 
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         title TEXT NOT NULL,
         value REAL NOT NULL,
         groupId INTEGER
-        )
-      ''');
+      )
+    ''');
 
-    await db.execute('''
+    // Verificar se a tabela 'groups' já existe e criá-la se não existir
+    await _createTableIfNotExists(db, 'groups', '''
       CREATE TABLE groups ( 
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         name TEXT NOT NULL
-        )
-      ''');
+      )
+    ''');
   }
 
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('''
-        CREATE TABLE groups ( 
-          id INTEGER PRIMARY KEY AUTOINCREMENT, 
-          name TEXT NOT NULL
-          )
-        ''');
+  Future<void> _createTableIfNotExists(
+      Database db, String tableName, String creationQuery) async {
+    var tableExists = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'");
+    if (tableExists.isEmpty) {
+      await db.execute(creationQuery);
     }
-    // Implemente futuras atualizações da versão aqui
   }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<User?> fetchUser(String username, String password) async {
     final db = await instance.database;
@@ -110,5 +112,24 @@ class DatabaseHelper {
     final result = await db.query('groups');
 
     return result.map((map) => Group.fromMap(map)).toList();
+  }
+
+  Future<int> deleteGroup(int id) async {
+    var db = await database;
+    return await db.delete(
+      'group',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> updateGroup(Group group) async {
+    final db = await instance.database;
+    return await db.update(
+      'groups',
+      group.toMap(),
+      where: 'id = ?',
+      whereArgs: [group.id],
+    );
   }
 }

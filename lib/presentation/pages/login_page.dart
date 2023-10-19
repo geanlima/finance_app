@@ -1,6 +1,6 @@
 // ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously, prefer_const_constructors, sized_box_for_whitespace
 
-import 'package:finance_app/presentation/pages/expense_page.dart';
+import 'package:finance_app/presentation/pages/home_page.dart';
 import 'package:finance_app/widgets/signup_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_app/data/database/database_helper.dart';
@@ -43,7 +43,7 @@ class _LoginformState extends State<Loginform> {
 
         // Navegue para ExpensePage
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => ExpensePage()));
+            context, MaterialPageRoute(builder: (context) => HomePage()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Usuário ou senha inválidos")));
