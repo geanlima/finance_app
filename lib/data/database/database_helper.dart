@@ -1,7 +1,8 @@
-// ignore_for_file: depend_on_referenced_packages, avoid_print
+// ignore_for_file: depend_on_referenced_packages
 
 import 'package:finance_app/models/group.dart';
 import 'package:finance_app/models/expense.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:finance_app/models/user.dart';
@@ -42,13 +43,15 @@ class DatabaseHelper {
 
     // Verificar se a tabela 'expense' já existe e criá-la se não existir
     await _createTableIfNotExists(db, 'expense', '''
-      CREATE TABLE expense ( 
-        id INTEGER PRIMARY KEY AUTOINCREMENT, 
-        title TEXT NOT NULL,
-        value REAL NOT NULL,
-        groupId INTEGER
-      )
-    ''');
+    CREATE TABLE expense ( 
+      id INTEGER PRIMARY KEY AUTOINCREMENT, 
+      title TEXT NOT NULL,
+      value REAL NOT NULL,
+      groupId INTEGER,
+      date TEXT NOT NULL, -- Adicione o campo de data
+      type TEXT NOT NULL  -- Adicione o campo de tipo
+    )
+  ''');
 
     // Verificar se a tabela 'groups' já existe e criá-la se não existir
     await _createTableIfNotExists(db, 'groups', '''
@@ -102,6 +105,55 @@ class DatabaseHelper {
     return await db.insert('expense', expense.toMap());
   }
 
+  Future<List<Expense>> loadExpenses() async {
+    final db = await instance.database;
+    final result =
+        await db.query('expense'); // Suponho que a tabela se chama 'expense'
+
+    return result.map((map) => Expense.fromMap(map)).toList();
+  }
+
+  Future<List<Expense>> loadExpensesForDate(String formattedDate) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'expense',
+      where: 'date = ?',
+      whereArgs: [formattedDate],
+    );
+
+    return result.map((map) => Expense.fromMap(map)).toList();
+  }
+
+  Future<List<Expense>> loadExpensesForDateAndType(
+      DateTime date, String type) async {
+    final db = await instance.database;
+    final formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+    String query = 'SELECT * FROM expense WHERE date = ?';
+
+    if (type != 'Todos') {
+      query += ' AND type = ?';
+    }
+
+    List<Map<String, dynamic>> maps;
+    if (type != 'Todos') {
+      maps = await db.rawQuery(query, [formattedDate, type]);
+    } else {
+      maps = await db.rawQuery(query, [formattedDate]);
+    }
+
+    return List.generate(maps.length, (i) {
+      return Expense(
+        id: maps[i]['id'],
+        title: maps[i]['title'],
+        value: maps[i]['value'],
+        groupId: maps[i]['groupId'],
+        date: DateTime.parse(maps[i]['date']),
+        type: maps[i]['type'],
+      );
+    });
+  }
+
   Future<int> addGroup(Group group) async {
     final db = await instance.database;
     return await db.insert('groups', group.toMap());
@@ -117,7 +169,7 @@ class DatabaseHelper {
   Future<int> deleteGroup(int id) async {
     var db = await database;
     return await db.delete(
-      'group',
+      'groups', // Correção aqui: era 'group', deve ser 'groups'
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -131,5 +183,17 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [group.id],
     );
+  }
+
+  Future<void> dropAndRecreateDatabase() async {
+    final db = await instance.database;
+    await db.close();
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'finance_app.db');
+    await deleteDatabase(path);
+    _database = null;
+
+    // Agora recrie o banco de dados chamando a função _initDB
+    await _initDB('finance_app.db');
   }
 }

@@ -25,18 +25,6 @@ class _GroupPageState extends State<GroupPage> {
       _groups = groups;
     });
   }
-/*
-  Future<void> _addNewGroup() async {
-    if (_groupNameController.text.isNotEmpty) {
-      Group newGroup = Group(name: _groupNameController.text);
-      await DatabaseHelper.instance.addGroup(newGroup);
-      _groupNameController.clear();
-      _loadGroups(); // Atualiza a lista de grupos
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Nome do grupo não pode estar vazio.")));
-    }
-  }*/
 
   void _addNewGroup() async {
     String? groupName = _groupNameController.text;

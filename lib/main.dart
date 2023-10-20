@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, unused_import
+// ignore_for_file: use_key_in_widget_constructors, unused_import, prefer_const_constructors
 
 import 'package:finance_app/presentation/pages/expense_page.dart';
 import 'package:finance_app/presentation/pages/group_page.dart';
