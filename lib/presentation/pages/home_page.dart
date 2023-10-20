@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Importe a biblioteca intl para formatação de datas
 import 'package:finance_app/data/database/database_helper.dart';
 import 'package:finance_app/models/expense.dart';
 import 'package:finance_app/presentation/pages/expense_page.dart';
@@ -12,52 +11,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Expense> _expenses = [];
-  DateTime _selectedDate = DateTime.now(); // Data inicial
 
   @override
   void initState() {
     super.initState();
-    _loadExpensesForSelectedDate(_selectedDate);
+    _loadExpenses();
   }
 
-  _loadExpensesForSelectedDate(DateTime selectedDate) async {
-    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-    List<Expense> expenses =
-        await DatabaseHelper.instance.loadExpensesForDate(formattedDate);
+  _loadExpenses() async {
+    List<Expense> expenses = await DatabaseHelper.instance.loadExpenses();
 
     setState(() {
       _expenses = expenses;
     });
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-      _loadExpensesForSelectedDate(picked);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ExpensePage(),
-            ),
-          );
-        },
-      ),
       appBar: AppBar(
         title: Text('My Finance'),
         leading: Builder(
@@ -79,20 +50,6 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Botão para selecionar data
-          TextButton(
-            onPressed: () {
-              _selectDate(context);
-            },
-            child: Text(
-              'Selecionar Data: ${DateFormat('dd/MM/yyyy').format(_selectedDate)}',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.blue,
-              ),
-            ),
-          ),
-
           // Lista de despesas
           Expanded(
             child: ListView.builder(
@@ -109,6 +66,16 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ExpensePage(),
+            ),
+          );
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
