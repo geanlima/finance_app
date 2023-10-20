@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:finance_app/data/database/database_helper.dart';
 import 'package:finance_app/models/expense.dart';

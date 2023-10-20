@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors, use_key_in_widget_constructors, sized_box_for_whitespace
 
 import 'package:finance_app/models/user.dart';
 import 'package:finance_app/presentation/pages/home_page.dart';
@@ -22,6 +22,7 @@ class LoginPage extends StatelessWidget {
 
 class Loginform extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _LoginformState createState() => _LoginformState();
 }
 
