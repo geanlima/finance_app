@@ -124,6 +124,8 @@ class DatabaseHelper {
     return result.map((map) => Expense.fromMap(map)).toList();
   }
 
+  
+
   Future<List<Expense>> loadExpensesForDateAndType(
       DateTime date, String type) async {
     final db = await instance.database;

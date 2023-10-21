@@ -1,4 +1,5 @@
 import 'package:finance_app/presentation/pages/group_page.dart';
+import 'package:finance_app/widgets/bottom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_app/data/database/database_helper.dart';
 import 'package:finance_app/models/expense.dart';
@@ -55,6 +56,16 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _logout() {
+    // Remove todas as rotas anteriores para impedir o retorno à HomePage após o logout
+    Navigator.of(context).popUntil(ModalRoute.withName('/login'));
+
+    // Aguarde um pequeno atraso antes de navegar para a tela de login
+    Future.delayed(Duration(milliseconds: 100), () {
+      Navigator.of(context).pushReplacementNamed('/login');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -69,6 +80,12 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: const Text('My Finance'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: _logout,
+            ),
+          ],
         ),
 
         drawer: MainDrawer(), // Adicione o MainDrawer aqui
@@ -107,52 +124,10 @@ class _HomePageState extends State<HomePage> {
               )
             : null,
         floatingActionButtonLocation: _fabLocation,
-        bottomNavigationBar: _BottomAppBar(
+        bottomNavigationBar: BottomAppBarWidget(
           fabLocation: _fabLocation,
           shape: _showNotch ? const CircularNotchedRectangle() : null,
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomAppBar extends StatelessWidget {
-  const _BottomAppBar({
-    this.fabLocation = FloatingActionButtonLocation.endDocked,
-    this.shape = const CircularNotchedRectangle(),
-  });
-
-  final FloatingActionButtonLocation fabLocation;
-  final NotchedShape? shape;
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      shape: shape,
-      color: Colors.blue,
-      child: IconTheme(
-        data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-        child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween, // Adicionei esta linha
-          children: <Widget>[
-            IconButton(
-              tooltip: 'Open navigation menu',
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                // Abre o drawer quando o ícone do menu é pressionado
-                Scaffold.of(context).openDrawer();
-              },
-            ),
-            IconButton(
-              tooltip: 'Open navigation menu',
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                // Abre o drawer quando o ícone do menu é pressionado
-                Scaffold.of(context).openDrawer();
-              },
-            ),
-          ],
+          loadExpenses: _loadExpenses, // Passando o método _loadExpenses
         ),
       ),
     );

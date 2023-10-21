@@ -43,7 +43,7 @@ class _LoginformState extends State<Loginform> {
             .showSnackBar(SnackBar(content: Text("Login bem-sucedido!")));
 
         // Navegue para ExpensePage
-        Navigator.pushReplacement(
+        Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
