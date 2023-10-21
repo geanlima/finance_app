@@ -1,8 +1,6 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison, use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields, no_leading_underscores_for_local_identifiers, use_build_context_synchronously
-
+import 'package:flutter/material.dart';
 import 'package:finance_app/data/database/database_helper.dart';
 import 'package:finance_app/models/group.dart';
-import 'package:flutter/material.dart';
 
 class GroupPage extends StatefulWidget {
   @override
@@ -10,7 +8,7 @@ class GroupPage extends StatefulWidget {
 }
 
 class _GroupPageState extends State<GroupPage> {
-  late List<Group> _groups = [];
+  List<Group>? _groups = [];
   TextEditingController _groupNameController = TextEditingController();
 
   @override
@@ -20,7 +18,7 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   _loadGroups() async {
-    List<Group> groups = await DatabaseHelper.instance.loadGroups();
+    List<Group>? groups = await DatabaseHelper.instance.loadGroups();
     setState(() {
       _groups = groups;
     });
@@ -31,8 +29,7 @@ class _GroupPageState extends State<GroupPage> {
     if (groupName != null && groupName.isNotEmpty) {
       Group newGroup = Group(name: groupName);
       await DatabaseHelper.instance.addGroup(newGroup);
-      Navigator.of(context).pop(
-          true); // Retorna `true` indicando que um novo grupo foi adicionado
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -51,7 +48,7 @@ class _GroupPageState extends State<GroupPage> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 TextFormField(
-                  initialValue: _groupName,
+                  initialValue: _groupName ?? '',
                   decoration: InputDecoration(labelText: 'Nome do Grupo'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -80,10 +77,8 @@ class _GroupPageState extends State<GroupPage> {
                   _formKey.currentState!.save();
 
                   group.name = _groupName!;
-                  await DatabaseHelper.instance.updateGroup(
-                      group); // Atualiza o grupo no banco de dados.
-
-                  _loadGroups(); // Recarrega os grupos após a edição.
+                  await DatabaseHelper.instance.updateGroup(group);
+                  _loadGroups();
                   Navigator.of(dialogContext).pop();
                 }
               },
@@ -165,16 +160,16 @@ class _GroupPageState extends State<GroupPage> {
             ),
           ),
           Expanded(
-            child: (_groups == null || _groups.isEmpty)
+            child: (_groups == null || _groups!.isEmpty)
                 ? Center(child: Text('Sem grupos para exibir'))
                 : ListView.builder(
-                    itemCount: _groups.length,
+                    itemCount: _groups!.length,
                     itemBuilder: (context, index) {
-                      final group = _groups[index];
+                      final group = _groups![index];
                       return ListTile(
                         title: Text(group.name),
                         trailing: Wrap(
-                          spacing: 12, // Espaço entre os ícones
+                          spacing: 12,
                           children: <Widget>[
                             IconButton(
                               icon: Icon(Icons.edit, color: Colors.blue),

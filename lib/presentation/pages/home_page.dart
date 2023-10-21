@@ -1,17 +1,26 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_const_constructors
-
+import 'package:finance_app/presentation/pages/group_page.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_app/data/database/database_helper.dart';
 import 'package:finance_app/models/expense.dart';
 import 'package:finance_app/presentation/pages/expense_page.dart';
 import 'package:finance_app/widgets/main_drawer.dart';
 
+void main() {
+  runApp(const HomePage());
+}
+
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
-  _HomePageState createState() => _HomePageState();
+  State createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _showFab = true;
+  bool _showNotch = true;
+  FloatingActionButtonLocation _fabLocation =
+      FloatingActionButtonLocation.endDocked;
   List<Expense> _expenses = [];
 
   @override
@@ -28,56 +37,123 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _onShowNotchChanged(bool value) {
+    setState(() {
+      _showNotch = value;
+    });
+  }
+
+  void _onShowFabChanged(bool value) {
+    setState(() {
+      _showFab = value;
+    });
+  }
+
+  void _onFabLocationChanged(FloatingActionButtonLocation? value) {
+    setState(() {
+      _fabLocation = value ?? FloatingActionButtonLocation.endDocked;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Finance'),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      routes: {
+        'GroupPage': (context) => GroupPage(), // Rota para a tela de Grupos
+        'ExpensePage': (context) =>
+            ExpensePage(), // Rota para a tela de Lançamentos
+        // Adicione outras rotas conforme necessário
+      },
+      home: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('My Finance'),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-          ),
-        ],
+
+        drawer: MainDrawer(), // Adicione o MainDrawer aqui
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Lista de despesas
+            Expanded(
+              child: ListView.builder(
+                itemCount: _expenses.length,
+                itemBuilder: (context, index) {
+                  final expense = _expenses[index];
+                  return ListTile(
+                    title: Text(expense.title),
+                    subtitle:
+                        Text('Valor: ${expense.value.toStringAsFixed(2)}'),
+                    // Mais detalhes sobre a despesa
+                    // ...
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: _showFab
+            ? FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ExpensePage(),
+                    ),
+                  );
+                },
+                tooltip: 'Create',
+                child: const Icon(Icons.add),
+              )
+            : null,
+        floatingActionButtonLocation: _fabLocation,
+        bottomNavigationBar: _BottomAppBar(
+          fabLocation: _fabLocation,
+          shape: _showNotch ? const CircularNotchedRectangle() : null,
+        ),
       ),
-      drawer: MainDrawer(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Lista de despesas
-          Expanded(
-            child: ListView.builder(
-              itemCount: _expenses.length,
-              itemBuilder: (context, index) {
-                final expense = _expenses[index];
-                return ListTile(
-                  title: Text(expense.title),
-                  subtitle: Text('Valor: ${expense.value.toStringAsFixed(2)}'),
-                  // Mais detalhes sobre a despesa
-                  // ...
-                );
+    );
+  }
+}
+
+class _BottomAppBar extends StatelessWidget {
+  const _BottomAppBar({
+    this.fabLocation = FloatingActionButtonLocation.endDocked,
+    this.shape = const CircularNotchedRectangle(),
+  });
+
+  final FloatingActionButtonLocation fabLocation;
+  final NotchedShape? shape;
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      shape: shape,
+      color: Colors.blue,
+      child: IconTheme(
+        data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+        child: Row(
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween, // Adicionei esta linha
+          children: <Widget>[
+            IconButton(
+              tooltip: 'Open navigation menu',
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                // Abre o drawer quando o ícone do menu é pressionado
+                Scaffold.of(context).openDrawer();
               },
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ExpensePage(),
+            IconButton(
+              tooltip: 'Open navigation menu',
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                // Abre o drawer quando o ícone do menu é pressionado
+                Scaffold.of(context).openDrawer();
+              },
             ),
-          );
-        },
-        child: Icon(Icons.add),
+          ],
+        ),
       ),
     );
   }
