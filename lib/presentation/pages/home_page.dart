@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element, prefer_const_constructors
+
 import 'package:finance_app/presentation/pages/group_page.dart';
 import 'package:finance_app/widgets/bottom_app_bar.dart';
 import 'package:flutter/material.dart';

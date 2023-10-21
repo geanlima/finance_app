@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
 
 class BottomAppBarWidget extends StatelessWidget {
@@ -9,7 +11,8 @@ class BottomAppBarWidget extends StatelessWidget {
 
   final FloatingActionButtonLocation fabLocation;
   final NotchedShape? shape;
-  final VoidCallback loadExpenses; // Adicionando um callback para o método _loadExpenses
+  final VoidCallback
+      loadExpenses; // Adicionando um callback para o método _loadExpenses
 
   @override
   Widget build(BuildContext context) {
