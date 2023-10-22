@@ -6,7 +6,7 @@ class BottomAppBarWidget extends StatelessWidget {
   const BottomAppBarWidget({
     this.fabLocation = FloatingActionButtonLocation.endDocked,
     this.shape = const CircularNotchedRectangle(),
-    required this.loadExpenses, // Adicionando um parâmetro para o método _loadExpenses
+    required this.loadExpenses, required double totalAmount, // Adicionando um parâmetro para o método _loadExpenses
   });
 
   final FloatingActionButtonLocation fabLocation;

@@ -1,5 +1,3 @@
-// ignore_for_file: unused_element, prefer_const_constructors
-
 import 'package:finance_app/presentation/pages/group_page.dart';
 import 'package:finance_app/widgets/bottom_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +11,10 @@ void main() {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -68,33 +66,82 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _deleteExpense(int expenseId) async {
+    await DatabaseHelper.instance.deleteExpense(expenseId);
+    _loadExpenses(); // Atualize a lista de despesas após a exclusão
+  }
+
+  void _showDeleteConfirmationDialog(int expenseId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmar Exclusão'),
+          content: Text('Tem certeza de que deseja excluir este registro?'),
+          actions: [
+            TextButton(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Confirmar'),
+              onPressed: () {
+                // Confirma a exclusão
+                _deleteExpense(expenseId);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  double _calculateTotalAmount() {
+    double total = 0.0;
+    for (var expense in _expenses) {
+      total += expense.value;
+    }
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        'GroupPage': (context) => GroupPage(), // Rota para a tela de Grupos
-        'ExpensePage': (context) =>
-            ExpensePage(), // Rota para a tela de Lançamentos
-        // Adicione outras rotas conforme necessário
+        'GroupPage': (context) => GroupPage(),
+        'ExpensePage': (context) => ExpensePage(),
       },
       home: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text('My Finance'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app),
-              onPressed: _logout,
-            ),
-          ],
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('My Finance'),
+              Row(
+                children: [
+                  Text(
+                    'Total: ${_calculateTotalAmount().toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(width: 16),
+                  IconButton(
+                    icon: Icon(Icons.exit_to_app),
+                    onPressed: _logout,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-
-        drawer: MainDrawer(), // Adicione o MainDrawer aqui
+        drawer: MainDrawer(),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Lista de despesas
             Expanded(
               child: ListView.builder(
                 itemCount: _expenses.length,
@@ -104,8 +151,12 @@ class _HomePageState extends State<HomePage> {
                     title: Text(expense.title),
                     subtitle:
                         Text('Valor: ${expense.value.toStringAsFixed(2)}'),
-                    // Mais detalhes sobre a despesa
-                    // ...
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _showDeleteConfirmationDialog(expense.id ?? 0);
+                      },
+                    ),
                   );
                 },
               ),
@@ -129,9 +180,16 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomAppBarWidget(
           fabLocation: _fabLocation,
           shape: _showNotch ? const CircularNotchedRectangle() : null,
-          loadExpenses: _loadExpenses, // Passando o método _loadExpenses
+          loadExpenses: _loadExpenses,
+          totalAmount: _calculateTotalAmount(),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    DatabaseHelper.instance.closeDatabase();
+    super.dispose();
   }
 }

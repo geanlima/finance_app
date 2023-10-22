@@ -124,8 +124,6 @@ class DatabaseHelper {
     return result.map((map) => Expense.fromMap(map)).toList();
   }
 
-  
-
   Future<List<Expense>> loadExpensesForDateAndType(
       DateTime date, String type) async {
     final db = await instance.database;
@@ -154,6 +152,15 @@ class DatabaseHelper {
         type: maps[i]['type'],
       );
     });
+  }
+
+  Future<int> deleteExpense(int expenseId) async {
+    final db = await instance.database;
+    return await db.delete(
+      'expense',
+      where: 'id = ?',
+      whereArgs: [expenseId],
+    );
   }
 
   Future<int> addGroup(Group group) async {
@@ -189,13 +196,18 @@ class DatabaseHelper {
 
   Future<void> dropAndRecreateDatabase() async {
     final db = await instance.database;
-    await db.close();
+    await db.close(); // Feche a conexão atual
+
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'finance_app.db');
-    await deleteDatabase(path);
-    _database = null;
+    await deleteDatabase(path); // Exclua o banco de dados
 
-    // Agora recrie o banco de dados chamando a função _initDB
-    await _initDB('finance_app.db');
+    // Reabra o banco de dados chamando a função _initDB
+    _database = await _initDB('finance_app.db');
+  }
+
+  Future<void> closeDatabase() async {
+    final db = await database;
+    //db.close();
   }
 }
