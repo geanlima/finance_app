@@ -30,10 +30,14 @@ class _LoginformState extends State<Loginform> {
   final _formKey = GlobalKey<FormState>();
   String _username = '';
   String _password = '';
+  final TextEditingController _passwordController = TextEditingController();
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
+      // Obtenha o valor da senha usando _passwordController.text
+      _password = _passwordController.text;
 
       User? user =
           await DatabaseHelper.instance.fetchUser(_username, _password);
@@ -140,12 +144,12 @@ class _LoginformState extends State<Loginform> {
           ),
           SizedBox(height: 20),
           TextFormField(
+            controller: _passwordController, // Use o controlador aqui
             decoration: InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.lock_outline),
             ),
-            obscureText: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your password';

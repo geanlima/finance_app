@@ -27,7 +27,7 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   void _addNewGroup() async {
-    String? groupName = _groupNameController.text;
+    String? groupName = _groupNameController.text.toUpperCase();
     if (groupName != null && groupName.isNotEmpty) {
       Group newGroup = Group(name: groupName);
       await DatabaseHelper.instance.addGroup(newGroup);

@@ -45,7 +45,7 @@ class _ExpensePageState extends State<ExpensePage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       Expense newExpense = Expense(
-        title: _title,
+        title: _title.toUpperCase(),
         value: _value,
         groupId: _selectedGroupId,
         date: _selectedDate,

@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         drawer: MainDrawer(),
-        body: Stack(
+        body: Column(
           children: [
             Expanded(
               child: ListView.builder(
