@@ -126,11 +126,11 @@ class _HomePageState extends State<HomePage> {
               Text('My Finance'),
               Row(
                 children: [
-                  Text(
-                    'Total: ${_calculateTotalAmount().toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 16),
-                  ),
                   SizedBox(width: 16),
+                  IconButton(
+                    icon: Icon(Icons.refresh),
+                    onPressed: _loadExpenses,
+                  ),
                   IconButton(
                     icon: Icon(Icons.exit_to_app),
                     onPressed: _logout,
@@ -141,8 +141,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         drawer: MainDrawer(),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: Stack(
           children: [
             Expanded(
               child: ListView.builder(
@@ -161,6 +160,29 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
+              ),
+            ),
+            Positioned(
+              bottom: 0, // para ficar na parte inferior da tela
+              left: 0, // começar do canto esquerdo da tela
+              right: 0, // terminar no canto direito da tela
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                color: Colors
+                    .blueGrey, // você pode escolher sua cor preferida aqui
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Total ",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    Text(
+                      "R\$ ${_calculateTotalAmount().toStringAsFixed(2)}", // usando $ para representar a moeda
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    )
+                  ],
+                ),
               ),
             ),
           ],
